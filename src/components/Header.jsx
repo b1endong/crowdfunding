@@ -9,11 +9,10 @@ function shortenAddress(address, chars = 4) {
 export default function Header() {
     const {open} = useAppKit();
 
-    const {address, isConnected, caipAddress, status, embeddedWalletInfo} =
-        useAppKitAccount();
+    const {address, isConnected} = useAppKitAccount();
 
     return (
-        <header className="flex-center-between py-4 border-b-2 mx-5">
+        <header className="flex-center-between py-4 border-b-2">
             <div className="flex-center">
                 <h1 className="text-2xl font-bold">Crowdfunding</h1>
                 {isConnected && (
