@@ -2,7 +2,7 @@ import {createAppKit} from "@reown/appkit/react";
 import {EthersAdapter} from "@reown/appkit-adapter-ethers";
 import {arbitrum, mainnet, sepolia} from "@reown/appkit/networks";
 
-import Header from ".//components/Header";
+import Header from "./components/Header";
 import Body from "./components/Body";
 
 const projectId = "72404a238daa32ae2ccbebec83f33446";
