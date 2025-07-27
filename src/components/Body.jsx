@@ -9,13 +9,14 @@ export default function Body() {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingFund, setIsLoadingFund] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-
+    const [owner, setOwner] = useState(null);
     const {walletProvider} = useAppKitProvider("eip155");
     const [balance, setBalance] = useState(null);
     const [funderLength, setFunderLength] = useState(null);
     const [amountFund, setAmountFund] = useState(0);
     const [txHash, setTxHash] = useState(null);
     const [formattedEvents, setFormattedEvents] = useState([]);
+    const {address} = useAppKitAccount();
     function shortenAddress(address, chars = 4) {
         if (!address || address.length < chars * 2 + 2) return address;
         return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
@@ -59,6 +60,10 @@ export default function Body() {
                 const funderLength =
                     await crowdFundingContract.getFunderLength();
                 setFunderLength(Number(funderLength));
+
+                //Hiển thị i_owner
+                const owner = await crowdFundingContract.i_owner();
+                setOwner(owner.toLowerCase());
             }
         } finally {
             setIsLoading(false);
@@ -96,6 +101,29 @@ export default function Body() {
         } finally {
             setIsLoadingFund(false);
             setIsSuccess(true);
+        }
+    };
+
+    const handleWithdraw = async (amount) => {
+        setIsLoadingFund(true);
+        try {
+            if (walletProvider) {
+                const ethersProvider = new BrowserProvider(walletProvider);
+                const signer = await ethersProvider.getSigner();
+                const crowdFundingContract = new Contract(
+                    ContractAddress,
+                    ContractAbi,
+                    signer
+                );
+                const tx = await crowdFundingContract.withdraw();
+                await tx.wait();
+
+                fetchContractData();
+            }
+        } catch (error) {
+            alert("An error occurred while withdrawing. Please try again.");
+        } finally {
+            setIsLoadingFund(false);
         }
     };
 
@@ -203,6 +231,15 @@ export default function Body() {
                         <HistoryEvent key={event.blockNumber} {...event} />
                     ))}
                 </div>
+            )}
+
+            {owner === address && (
+                <button
+                    onClick={handleWithdraw}
+                    className="bg-black hover:opacity-80 w-full transition-all mb-5 text-white font-bold py-2 px-4 rounded"
+                >
+                    Withdraw Funds
+                </button>
             )}
         </>
     );
